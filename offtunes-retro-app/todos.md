@@ -1,0 +1,10 @@
+- 1. Read active DESIGN.md and configure brand-spec (done)
+- 2. Plan section/slide/screen list with rhythm (done - Home, Import, NowPlaying, Queue, Settings, Detail, Search)
+- 3. Implement React App Context for audio playback, queue, and global state
+- 4. Construct global CSS based on the strict hardware aesthetic
+- 5. Build global components (BottomNav, MiniPlayer, HardwareButton, Toast)
+- 6. Implement Home Screen (2-col grid, album art, API fetch)
+- 7. Implement Now Playing Screen (LCD display, transport controls, seek bar)
+- 8. Implement remaining screens (Import, Queue, Settings, Detail, Search)
+- 9. Self-check against retro hardware design constraints
+- 10. Emit single standalone artifact

@@ -1,0 +1,1062 @@
+
+<!doctype html>
+<html lang="en">
+<head><script>(function(){
+  function makeStore(){
+    var data = {};
+    var api = {
+      getItem: function(k){ return Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null; },
+      setItem: function(k, v){ data[k] = String(v); },
+      removeItem: function(k){ delete data[k]; },
+      clear: function(){ data = {}; },
+      key: function(i){ return Object.keys(data)[i] || null; }
+    };
+    Object.defineProperty(api, 'length', { get: function(){ return Object.keys(data).length; } });
+    return api;
+  }
+  function tryShim(name){
+    var works = false;
+    try { works = !!window[name] && typeof window[name].getItem === 'function'; void window[name].length; }
+    catch (_) { works = false; }
+    if (works) return;
+    try { Object.defineProperty(window, name, { configurable: true, value: makeStore() }); }
+    catch (_) { try { window[name] = makeStore(); } catch (__) {} }
+  }
+  tryShim('localStorage');
+  tryShim('sessionStorage');
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OFFTUNES</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #FAF5F7;
+      --surface: #F2E8ED;
+      --surface-raised: #EDD9E5;
+      --pink: #F4B8CC;
+      --rose: #C2577A;
+      --mauve: #8B3A55;
+      --text: #3A1F2B;
+      --text-soft: #9B7080;
+      --lcd: #B8E0C8;
+      --error: #D94F6A;
+      --lcd-bg: #E8DDD4;
+
+      --font-display: 'Share Tech Mono', monospace;
+      --font-ui: 'DM Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #1A1A1A;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: var(--font-ui);
+      color: var(--text);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Device Container */
+    #root {
+      width: 100%;
+      height: 100%;
+      max-width: 400px;
+      max-height: 850px;
+      background-color: var(--bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    @media (min-width: 450px) {
+      #root {
+        height: 90vh;
+        border-radius: 16px;
+        border: 8px solid #EBE1E5;
+        box-shadow: 
+          inset 0 0 0 2px var(--pink),
+          0 20px 40px rgba(0,0,0,0.5);
+      }
+    }
+
+    /* Typography Utilities */
+    .font-display { font-family: var(--font-display); }
+    .font-ui { font-family: var(--font-ui); }
+    
+    .section-label {
+      font-family: var(--font-ui);
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--text-soft);
+      font-weight: 600;
+    }
+
+    /* Hardware Buttons */
+    .hw-btn {
+      background: var(--surface-raised);
+      border: 1.5px solid var(--pink);
+      border-bottom-width: 3.5px;
+      border-radius: 4px;
+      color: var(--mauve);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.05s ease-out;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .hw-btn:active {
+      border-bottom-width: 1.5px;
+      transform: translateY(2px);
+      background: var(--rose);
+      color: var(--bg);
+    }
+    
+    .hw-btn.active {
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+
+    .hw-btn-primary {
+      background: var(--rose);
+      border-color: var(--mauve);
+      color: var(--bg);
+    }
+    .hw-btn-primary:active {
+      background: var(--mauve);
+    }
+
+    /* Panels & Cards */
+    .panel {
+      background: var(--surface);
+      border: 1.5px solid var(--pink);
+      border-radius: 4px;
+    }
+
+    /* Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      height: 24px;
+    }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--pink);
+      border-radius: 0px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 16px;
+      width: 10px;
+      border-radius: 2px;
+      background: var(--mauve);
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      border: none;
+    }
+
+    /* Scrollbar hidden */
+    ::-webkit-scrollbar { display: none; }
+
+    /* Layouts */
+    .screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-bottom: 80px; /* space for nav */
+      background: var(--bg);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .screen-full {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    /* Top Bar */
+    .top-bar {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 64px;
+      background: var(--surface);
+      border-top: 1.5px solid var(--pink);
+      display: flex;
+      z-index: 10;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--text-soft);
+      cursor: pointer;
+    }
+    .nav-item.active {
+      color: var(--rose);
+    }
+    .nav-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--rose);
+      opacity: 0;
+    }
+    .nav-item.active .nav-dot { opacity: 1; }
+
+    /* Mini Player */
+    .mini-player {
+      position: absolute;
+      bottom: 64px; left: 0; right: 0;
+      height: 56px;
+      background: var(--surface-raised);
+      border-top: 1.5px solid var(--pink);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 9;
+      cursor: pointer;
+    }
+    .mini-player-progress {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      background: var(--rose);
+      transition: width 0.1s linear;
+    }
+
+    /* Marquee */
+    .marquee-container {
+      flex: 1;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    .marquee {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 10s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
+    }
+
+    /* Toasts */
+    .toast-container {
+      position: absolute;
+      top: 16px; left: 16px; right: 16px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1.5px solid var(--pink);
+      border-left: 3px solid var(--rose);
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast.error { border-left-color: var(--error); }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* LCD Visualizer */
+    .lcd-window {
+      background: var(--lcd-bg);
+      border: 2px inset rgba(0,0,0,0.05);
+      border-radius: 2px;
+      padding: 8px;
+      height: 48px;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .lcd-bar {
+      flex: 1;
+      background: var(--lcd);
+      min-height: 2px;
+      transition: height 0.1s ease;
+    }
+
+    /* Hardware Toggle */
+    .hw-toggle {
+      width: 48px; height: 24px;
+      background: var(--surface-raised);
+      border: 1.5px solid var(--pink);
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+    }
+    .hw-toggle-thumb {
+      width: 20px; height: 18px;
+      background: var(--mauve);
+      border-radius: 2px;
+      position: absolute;
+      top: 1.5px; left: 2px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hw-toggle.on .hw-toggle-thumb {
+      transform: translateX(22px);
+      background: var(--rose);
+    }
+    
+    .text-truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, createContext, useContext, useMemo } = React;
+
+    // --- UTILS ---
+    const formatTime = (secs) => {
+      if (isNaN(secs)) return "00:00:00";
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = Math.floor(secs % 60);
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    // --- CONTEXT ---
+    const AppContext = createContext();
+
+    const AppProvider = ({ children }) => {
+      const [screen, setScreen] = useState('home');
+      const [viewData, setViewData] = useState(null); // passing data to screens
+      
+      const [library, setLibrary] = useState([]);
+      const [queue, setQueue] = useState([]);
+      const [currentIndex, setCurrentIndex] = useState(-1);
+      
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [currentTime, setCurrentTime] = useState(0);
+      const [duration, setDuration] = useState(0);
+      const [volume, setVolume] = useState(0.8);
+      const [toasts, setToasts] = useState([]);
+      
+      const [isShuffle, setIsShuffle] = useState(false);
+
+      const audioRef = useRef(new Audio());
+
+      // Setup audio element
+      useEffect(() => {
+        const audio = audioRef.current;
+        audio.volume = volume;
+        
+        const updateTime = () => setCurrentTime(audio.currentTime);
+        const updateDuration = () => setDuration(audio.duration);
+        const handleEnded = () => playNext();
+        const handlePlay = () => setIsPlaying(true);
+        const handlePause = () => setIsPlaying(false);
+
+        audio.addEventListener('timeupdate', updateTime);
+        audio.addEventListener('loadedmetadata', updateDuration);
+        audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('play', handlePlay);
+        audio.addEventListener('pause', handlePause);
+
+        return () => {
+          audio.removeEventListener('timeupdate', updateTime);
+          audio.removeEventListener('loadedmetadata', updateDuration);
+          audio.removeEventListener('ended', handleEnded);
+          audio.removeEventListener('play', handlePlay);
+          audio.removeEventListener('pause', handlePause);
+        };
+      }, []);
+
+      useEffect(() => {
+        audioRef.current.volume = volume;
+      }, [volume]);
+
+      const currentTrack = queue[currentIndex] || null;
+
+      useEffect(() => {
+        if (currentTrack && currentTrack.url) {
+          audioRef.current.src = currentTrack.url;
+          audioRef.current.play().catch(e => console.log('Auto-play prevented', e));
+        }
+      }, [currentIndex, queue]);
+
+      const togglePlay = () => {
+        if (!currentTrack) return;
+        if (isPlaying) {
+          audioRef.current.pause();
+          haptic('light');
+        } else {
+          audioRef.current.play();
+          haptic('light');
+        }
+      };
+
+      const playNext = () => {
+        if (queue.length === 0) return;
+        let nextIdx = currentIndex + 1;
+        if (nextIdx >= queue.length) nextIdx = 0; // loop
+        if (isShuffle) nextIdx = Math.floor(Math.random() * queue.length);
+        setCurrentIndex(nextIdx);
+        haptic('light');
+      };
+
+      const playPrev = () => {
+        if (audioRef.current.currentTime > 3) {
+          audioRef.current.currentTime = 0;
+        } else {
+          if (queue.length === 0) return;
+          let prevIdx = currentIndex - 1;
+          if (prevIdx < 0) prevIdx = queue.length - 1;
+          setCurrentIndex(prevIdx);
+        }
+        haptic('light');
+      };
+
+      const playTrack = (track) => {
+        const qIdx = queue.findIndex(t => t.id === track.id);
+        if (qIdx >= 0) {
+          setCurrentIndex(qIdx);
+        } else {
+          setQueue([track, ...queue]);
+          setCurrentIndex(0);
+        }
+      };
+
+      const playAlbum = (albumTracks) => {
+        setQueue(albumTracks);
+        setCurrentIndex(0);
+        setScreen('now-playing');
+      };
+
+      const addToast = (msg, isError = false) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, msg, isError }]);
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== id));
+        }, 3000);
+      };
+
+      const navigate = (newScreen, data = null) => {
+        setScreen(newScreen);
+        setViewData(data);
+        haptic('light');
+      };
+
+      const haptic = (type) => {
+        if (navigator.vibrate) {
+          navigator.vibrate(type === 'medium' ? 40 : 15);
+        }
+      };
+
+      // Load initial mock library using iTunes API
+      useEffect(() => {
+        const fetchInitial = async () => {
+          try {
+            const res = await fetch('https://itunes.apple.com/search?term=synthwave&entity=song&limit=16');
+            const data = await res.json();
+            const tracks = data.results.map(t => ({
+              id: t.trackId,
+              title: t.trackName,
+              artist: t.artistName,
+              album: t.collectionName,
+              art: t.artworkUrl100.replace('100x100', '300x300'),
+              url: t.previewUrl,
+              duration: 30 // iTunes previews are ~30s
+            }));
+            setLibrary(tracks);
+          } catch(e) {
+            addToast('FAULT: NO INTERNET', true);
+          }
+        };
+        fetchInitial();
+      }, []);
+
+      return (
+        <AppContext.Provider value={{
+          screen, navigate, viewData,
+          library, setLibrary,
+          queue, setQueue,
+          currentTrack, currentIndex, setCurrentIndex,
+          isPlaying, togglePlay, playNext, playPrev, playTrack, playAlbum,
+          currentTime, duration, audioRef,
+          volume, setVolume,
+          toasts, addToast,
+          isShuffle, setIsShuffle,
+          haptic
+        }}>
+          {children}
+        </AppContext.Provider>
+      );
+    };
+
+    const useApp = () => useContext(AppContext);
+
+    // --- SHARED COMPONENTS ---
+    const TopBar = ({ left, right }) => (
+      <div className="top-bar">
+        {left}
+        {right}
+      </div>
+    );
+
+    const Toasts = () => {
+      const { toasts } = useApp();
+      return (
+        <div className="toast-container">
+          {toasts.map(t => (
+            <div key={t.id} className={`toast ${t.isError ? 'error' : ''}`}>
+              <i className={t.isError ? "ph ph-warning-circle" : "ph ph-check-circle"} style={{ fontSize: 20 }}></i>
+              {t.msg}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    const MiniPlayer = () => {
+      const { currentTrack, isPlaying, togglePlay, navigate, currentTime, duration } = useApp();
+      if (!currentTrack) return null;
+      
+      const progressPct = duration ? (currentTime / duration) * 100 : 0;
+
+      return (
+        <div className="mini-player" onClick={() => navigate('now-playing')}>
+          <img src={currentTrack.art} alt="" style={{ width: 36, height: 36, borderRadius: 2, objectFit: 'cover' }} />
+          <div className="marquee-container" style={{ flex: 1 }}>
+             <div className="font-display" style={{ fontSize: 14 }}>
+               {currentTrack.title.length > 20 ? (
+                 <span className="marquee">{currentTrack.title}</span>
+               ) : currentTrack.title}
+             </div>
+             <div className="font-ui" style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2 }}>{currentTrack.artist}</div>
+          </div>
+          <button className="hw-btn" onClick={(e) => { e.stopPropagation(); togglePlay(); }} style={{ padding: '6px', borderRadius: '50%' }}>
+            <i className={isPlaying ? "ph ph-pause" : "ph ph-play"} style={{ fontSize: 16 }}></i>
+          </button>
+          <div className="mini-player-progress" style={{ width: `${progressPct}%` }}></div>
+        </div>
+      );
+    };
+
+    const BottomNav = () => {
+      const { screen, navigate } = useApp();
+      const items = [
+        { id: 'home', icon: 'ph-music-notes-simple', label: 'LIB' },
+        { id: 'search', icon: 'ph-magnifying-glass', label: 'QUERY' },
+        { id: 'import', icon: 'ph-download-simple', label: 'LOAD' },
+        { id: 'settings', icon: 'ph-sliders-horizontal', label: 'CFG' }
+      ];
+      
+      if (['now-playing', 'queue', 'detail'].includes(screen)) return null;
+
+      return (
+        <div className="bottom-nav">
+          {items.map(item => (
+            <div key={item.id} className={`nav-item ${screen === item.id ? 'active' : ''}`} onClick={() => navigate(item.id)}>
+              <i className={`ph ${item.icon}`} style={{ fontSize: 24, strokeWidth: 1.5 }}></i>
+              <span className="font-ui" style={{ fontSize: 9, fontWeight: 600 }}>{item.label}</span>
+              <div className="nav-dot"></div>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    // --- SCREENS ---
+
+    const HomeScreen = () => {
+      const { library, navigate, haptic } = useApp();
+      const [tab, setTab] = useState('ALBUMS');
+
+      // Group by album mock
+      const albums = useMemo(() => {
+        const map = new Map();
+        library.forEach(t => {
+          if (!map.has(t.album)) map.set(t.album, { title: t.album, artist: t.artist, art: t.art, tracks: [] });
+          map.get(t.album).tracks.push(t);
+        });
+        return Array.from(map.values());
+      }, [library]);
+
+      return (
+        <div className="screen">
+          <TopBar 
+            left={<div className="font-display" style={{ fontSize: 20, color: 'var(--mauve)' }}>OFFTUNES</div>}
+            right={<div className="font-display" style={{ fontSize: 10, padding: '2px 6px', border: '1.5px solid var(--pink)', borderRadius: 2 }}>[ SYS 4.2 GB ]</div>}
+          />
+          
+          <div style={{ display: 'flex', padding: '0 20px', gap: 24, borderBottom: '1.5px solid var(--pink)', marginBottom: 20 }}>
+            {['ALBUMS', 'PLAYLISTS'].map(t => (
+              <div key={t} 
+                   onClick={() => { setTab(t); haptic('light'); }}
+                   className="font-ui"
+                   style={{ 
+                     fontSize: 12, fontWeight: 600, paddingBottom: 12, cursor: 'pointer',
+                     color: tab === t ? 'var(--rose)' : 'var(--text-soft)',
+                     borderBottom: tab === t ? '2px solid var(--rose)' : '2px solid transparent'
+                   }}>
+                {t}
+              </div>
+            ))}
+          </div>
+
+          {library.length === 0 ? (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-soft)' }}>
+              <i className="ph ph-cassette-tape" style={{ fontSize: 64, color: 'var(--pink)', marginBottom: 16 }}></i>
+              <div className="font-display" style={{ fontSize: 16 }}>NO MEDIA LOADED</div>
+              <div className="font-ui" style={{ fontSize: 12, marginTop: 8 }}>Drop a playlist to begin</div>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '0 20px' }}>
+              {albums.map((album, i) => (
+                <div key={i} className="panel" style={{ overflow: 'hidden', cursor: 'pointer' }} onClick={() => navigate('detail', album)}>
+                  <img src={album.art} alt="" style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', display: 'block', borderBottom: '1.5px solid var(--pink)' }} />
+                  <div style={{ padding: '8px', position: 'relative' }}>
+                    <div className="font-display text-truncate" style={{ fontSize: 11, marginBottom: 4 }}>{album.title}</div>
+                    <div className="font-ui text-truncate" style={{ fontSize: 10, color: 'var(--text-soft)' }}>{album.artist}</div>
+                    <div className="font-display" style={{ position: 'absolute', top: -16, right: 4, background: 'var(--surface)', border: '1.5px solid var(--rose)', padding: '2px 4px', fontSize: 9, borderRadius: 2 }}>
+                      [ {album.tracks.length} TRK ]
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const DetailScreen = () => {
+      const { viewData: album, navigate, playAlbum, playTrack, haptic } = useApp();
+      if (!album) return null;
+
+      return (
+        <div className="screen-full" style={{ zIndex: 15 }}>
+          <div style={{ position: 'relative' }}>
+            <img src={album.art} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }} />
+            <button className="hw-btn" style={{ position: 'absolute', top: 20, left: 20, padding: 8 }} onClick={() => navigate('home')}>
+              <i className="ph ph-caret-left" style={{ fontSize: 20 }}></i>
+            </button>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(242, 232, 237, 0.85)', backdropFilter: 'blur(10px)', padding: '16px 20px', borderTop: '1.5px solid var(--pink)' }}>
+              <div className="font-display text-truncate" style={{ fontSize: 20, marginBottom: 4 }}>{album.title}</div>
+              <div className="font-ui" style={{ fontSize: 12, color: 'var(--text-soft)' }}>{album.artist} · 1989 · {album.tracks.length} TRKS</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 12, padding: '20px' }}>
+            <button className="hw-btn hw-btn-primary" style={{ flex: 1 }} onClick={() => playAlbum(album.tracks)}>
+              <i className="ph ph-play-circle" style={{ fontSize: 18 }}></i> PLAY ALL
+            </button>
+            <button className="hw-btn" style={{ flex: 1 }}>
+              <i className="ph ph-shuffle" style={{ fontSize: 18 }}></i> SHUFFLE
+            </button>
+          </div>
+
+          <div style={{ padding: '0 20px 80px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {album.tracks.map((t, i) => (
+              <div key={t.id} onClick={() => playTrack(t)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px', background: 'var(--surface-raised)', borderRadius: 4, cursor: 'pointer' }}>
+                <div className="font-display" style={{ color: 'var(--text-soft)', fontSize: 12 }}>{(i+1).toString().padStart(2, '0')}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="font-display text-truncate" style={{ fontSize: 14 }}>{t.title}</div>
+                </div>
+                <div className="font-display" style={{ color: 'var(--text-soft)', fontSize: 11 }}>0:30</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    const ImportScreen = () => {
+      const { addToast, setLibrary, library, haptic } = useApp();
+      const [loading, setLoading] = useState(false);
+      const [val, setVal] = useState('');
+      const [result, setResult] = useState(null);
+
+      const handleLoad = () => {
+        if (!val) return;
+        haptic('medium');
+        setLoading(true);
+        setTimeout(async () => {
+          try {
+            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(val)}&entity=song&limit=5`);
+            const data = await res.json();
+            setResult({
+              name: val.toUpperCase() + ' MIX',
+              count: data.results.length,
+              size: 'EST. ' + Math.floor(Math.random() * 100 + 20) + ' MB',
+              art: data.results[0]?.artworkUrl100.replace('100x100', '300x300') || '',
+              raw: data.results
+            });
+          } catch(e) {
+            addToast('FAULT: NETWORK ERROR', true);
+          }
+          setLoading(false);
+        }, 1500);
+      };
+
+      const handleConfirm = () => {
+        haptic('medium');
+        if (result) {
+          const newTracks = result.raw.map(t => ({
+            id: t.trackId, title: t.trackName, artist: t.artistName, album: t.collectionName,
+            art: t.artworkUrl100.replace('100x100', '300x300'), url: t.previewUrl, duration: 30
+          }));
+          setLibrary([...newTracks, ...library]);
+          addToast('✓ DOWNLOADED');
+          setResult(null);
+          setVal('');
+        }
+      };
+
+      return (
+        <div className="screen" style={{ padding: '20px' }}>
+          <div className="section-label" style={{ marginBottom: 12 }}>Data Input</div>
+          
+          <div className="panel" style={{ padding: 16, marginBottom: 20 }}>
+            <input 
+              value={val} onChange={e => setVal(e.target.value)}
+              placeholder="PASTE PLAYLIST URL_" 
+              className="font-display" 
+              style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--text)', fontSize: 14, outline: 'none', padding: '8px 0' }}
+            />
+          </div>
+
+          <button className="hw-btn hw-btn-primary" style={{ width: '100%', height: 52, fontSize: 16 }} onClick={handleLoad} disabled={loading}>
+            {loading ? 'FETCHING ···' : 'LOAD'}
+          </button>
+
+          {result && (
+            <div className="panel" style={{ marginTop: 32, borderTop: '2px solid var(--rose)', animation: 'slideUp 0.3s ease' }}>
+              <div style={{ display: 'flex', padding: 16, gap: 16, borderBottom: '1.5px solid var(--pink)' }}>
+                <img src={result.art} style={{ width: 64, height: 64, borderRadius: 2 }} />
+                <div>
+                  <div className="font-display" style={{ fontSize: 16, marginBottom: 4 }}>{result.name}</div>
+                  <div className="font-display" style={{ fontSize: 11, color: 'var(--text-soft)' }}>{result.count} TRKS · SOURCE: ITUNES</div>
+                  <div className="font-display" style={{ fontSize: 11, color: 'var(--text-soft)' }}>{result.size}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', padding: 16, gap: 12 }}>
+                <button className="hw-btn hw-btn-primary" style={{ flex: 1 }} onClick={handleConfirm}>CONFIRM</button>
+                <button className="hw-btn" style={{ flex: 1 }} onClick={() => setResult(null)}>CANCEL</button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const NowPlayingScreen = () => {
+      const { currentTrack, isPlaying, togglePlay, navigate, currentTime, duration, audioRef, volume, setVolume, playNext, playPrev, haptic } = useApp();
+
+      const handleSeek = (e) => {
+        const val = parseFloat(e.target.value);
+        if (audioRef.current && duration) {
+          audioRef.current.currentTime = val;
+        }
+      };
+
+      // Waveform simulation
+      const [bars, setBars] = useState(Array(24).fill(20));
+      useEffect(() => {
+        if (!isPlaying) {
+          setBars(Array(24).fill(10));
+          return;
+        }
+        const interval = setInterval(() => {
+          setBars(prev => prev.map(() => Math.floor(Math.random() * 80) + 10));
+        }, 150);
+        return () => clearInterval(interval);
+      }, [isPlaying]);
+
+      return (
+        <div className="screen-full" style={{ padding: '24px 20px', justifyContent: 'space-between' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <button className="hw-btn" style={{ padding: '8px' }} onClick={() => navigate('home')}>
+              <i className="ph ph-caret-down" style={{ fontSize: 20 }}></i>
+            </button>
+            <div className="section-label">Playback Active</div>
+            <button className="hw-btn" style={{ padding: '8px' }} onClick={() => navigate('queue')}>
+              <i className="ph ph-list-numbers" style={{ fontSize: 20 }}></i>
+            </button>
+          </div>
+
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <div className="section-label" style={{ marginBottom: 8 }}>NOW PLAYING</div>
+            <div className="panel" style={{ border: '2px solid var(--mauve)', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="font-display text-truncate" style={{ fontSize: 22, color: 'var(--text)' }}>
+                {currentTrack ? currentTrack.title : 'NO SIGNAL'}
+              </div>
+              <div className="font-ui text-truncate" style={{ fontSize: 13, color: 'var(--text-soft)' }}>
+                {currentTrack ? currentTrack.artist : '---'}
+              </div>
+
+              <div className="lcd-window">
+                {bars.map((h, i) => (
+                  <div key={i} className="lcd-bar" style={{ height: `${h}%` }}></div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="font-display" style={{ color: 'var(--rose)', fontSize: 14 }}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <div className="font-display" style={{ fontSize: 9, color: 'var(--text-soft)', border: '1px solid var(--pink)', padding: '2px 4px', borderRadius: 2 }}>[ MP3 ]</div>
+                  <div className="font-display" style={{ fontSize: 9, color: 'var(--text-soft)', border: '1px solid var(--pink)', padding: '2px 4px', borderRadius: 2 }}>[ 320 ]</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 32 }}>
+            <input type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek} />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 40, gap: 12 }}>
+            <button className="hw-btn" style={{ flex: 1, padding: '16px 0' }} onClick={playPrev}>
+              <i className="ph ph-skip-back-circle" style={{ fontSize: 28 }}></i>
+            </button>
+            <button className="hw-btn hw-btn-primary" style={{ flex: 1.5, padding: '16px 0' }} onClick={togglePlay}>
+              <i className={isPlaying ? "ph ph-pause-circle" : "ph ph-play-circle"} style={{ fontSize: 32 }}></i>
+            </button>
+            <button className="hw-btn" style={{ flex: 1, padding: '16px 0' }} onClick={playNext}>
+              <i className="ph ph-skip-forward-circle" style={{ fontSize: 28 }}></i>
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+            <div className="section-label">VOL ▸</div>
+            <input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} style={{ flex: 1 }} />
+          </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button className="hw-btn" style={{ flex: 1 }}>QUEUE</button>
+            <button className="hw-btn" style={{ flex: 1 }}>+ PLAYLIST</button>
+            <button className="hw-btn" style={{ flex: 1 }}>SHARE</button>
+          </div>
+
+        </div>
+      );
+    };
+
+    const QueueScreen = () => {
+      const { queue, currentTrack, currentIndex, navigate, playTrack, isShuffle, setIsShuffle, setQueue, haptic } = useApp();
+
+      return (
+        <div className="screen-full" style={{ zIndex: 15, background: 'var(--surface)' }}>
+          <TopBar 
+            left={<div className="font-ui" style={{ fontSize: 16, color: 'var(--mauve)', fontWeight: 600, letterSpacing: 2 }}>QUEUE</div>}
+            right={<button className="hw-btn" style={{ padding: '6px 10px' }} onClick={() => { setQueue([]); navigate('home'); }}>CLEAR ALL</button>}
+          />
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 40px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {currentTrack && (
+              <div style={{ position: 'relative', marginBottom: 16 }}>
+                <div className="font-display" style={{ color: 'var(--rose)', fontSize: 9, position: 'absolute', top: -14, left: 16 }}>▶ NOW</div>
+                <div className="panel" style={{ borderLeft: '3px solid var(--rose)', padding: '12px 16px', background: 'var(--surface-raised)' }}>
+                  <div className="font-display text-truncate" style={{ fontSize: 14 }}>{currentTrack.title}</div>
+                  <div className="font-ui" style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 4 }}>{currentTrack.artist}</div>
+                </div>
+              </div>
+            )}
+
+            {queue.slice(currentIndex + 1).map((t, i) => (
+              <div key={i} onClick={() => playTrack(t)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0', borderBottom: '1px solid var(--pink)', cursor: 'pointer' }}>
+                <i className="ph ph-dots-six-vertical" style={{ color: 'var(--text-soft)', fontSize: 16 }}></i>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="font-display text-truncate" style={{ fontSize: 14 }}>{t.title}</div>
+                  <div className="font-ui text-truncate" style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2 }}>{t.artist}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ padding: '20px', borderTop: '1.5px solid var(--pink)', background: 'var(--bg)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <div className="section-label">PLAYBACK MODE</div>
+             <div className={`hw-toggle ${isShuffle ? 'on' : ''}`} onClick={() => { setIsShuffle(!isShuffle); haptic('light'); }}>
+               <div className="hw-toggle-thumb"></div>
+             </div>
+          </div>
+        </div>
+      );
+    };
+
+    const SettingsScreen = () => {
+      const { haptic } = useApp();
+      const settings = [
+        { label: 'AUDIO QUALITY', val: 'BEST' },
+        { label: 'DOWNLOAD PATH', val: '/mnt/sdcard/music' },
+        { label: 'CONCURRENT DL', val: '2' },
+        { label: 'CACHE LIMIT', val: '4 GB' },
+        { label: 'THEME', val: 'BLOSSOM' }
+      ];
+
+      return (
+        <div className="screen" style={{ padding: '20px' }}>
+          <div className="section-label" style={{ marginBottom: 16 }}>Configuration</div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            {settings.map(s => (
+              <div key={s.label} className="panel" style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, cursor: 'pointer' }} onClick={() => haptic('light')}>
+                <div className="section-label" style={{ textAlign: 'center' }}>{s.label}</div>
+                <div className="font-display" style={{ color: 'var(--rose)', fontSize: 13, textAlign: 'center' }}>{s.val}</div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="panel" style={{ marginTop: 24, padding: 16, textAlign: 'center' }}>
+            <div className="font-display" style={{ fontSize: 14 }}>v0.1.0</div>
+            <div className="font-display" style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 4 }}>SERIAL: OFT-0001</div>
+            <div className="font-ui" style={{ fontSize: 10, color: 'var(--text-soft)', marginTop: 12 }}>OFFTUNES SYSTEMS</div>
+          </div>
+        </div>
+      );
+    };
+
+    const SearchScreen = () => {
+      const { playTrack, haptic } = useApp();
+      const [query, setQuery] = useState('');
+      const [results, setResults] = useState([]);
+      const [loading, setLoading] = useState(false);
+
+      const doSearch = async (e) => {
+        e.preventDefault();
+        if(!query) return;
+        haptic('medium');
+        setLoading(true);
+        try {
+          const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`);
+          const data = await res.json();
+          setResults(data.results.map(t => ({
+            id: t.trackId, title: t.trackName, artist: t.artistName, album: t.collectionName,
+            art: t.artworkUrl100.replace('100x100', '300x300'), url: t.previewUrl, duration: 30
+          })));
+        } catch(e) {}
+        setLoading(false);
+      };
+
+      return (
+        <div className="screen" style={{ padding: '20px' }}>
+          <form onSubmit={doSearch} style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+            <div className="panel" style={{ flex: 1, padding: '12px 16px' }}>
+              <input 
+                value={query} onChange={e => setQuery(e.target.value)}
+                placeholder="SEARCH LIBRARY_" 
+                className="font-display" 
+                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--text)', fontSize: 14, outline: 'none' }}
+              />
+            </div>
+            <button className="hw-btn hw-btn-primary" type="submit">GO</button>
+          </form>
+
+          {loading && <div className="font-display" style={{ color: 'var(--rose)', textAlign: 'center', marginTop: 40 }}>QUERYING ···</div>}
+          
+          {!loading && results.length === 0 && query && (
+            <div className="font-display" style={{ color: 'var(--text-soft)', textAlign: 'center', marginTop: 40 }}>NO MATCH FOUND</div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {results.map((t) => (
+              <div key={t.id} onClick={() => playTrack(t)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px', background: 'var(--surface-raised)', borderRadius: 4, cursor: 'pointer' }}>
+                <img src={t.art} style={{ width: 40, height: 40, borderRadius: 2 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="font-display text-truncate" style={{ fontSize: 14 }}>{t.title}</div>
+                  <div className="font-ui text-truncate" style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2 }}>{t.artist}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+
+    const Main = () => {
+      const { screen } = useApp();
+      return (
+        <>
+          <Toasts />
+          {screen === 'home' && <HomeScreen />}
+          {screen === 'import' && <ImportScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+          {screen === 'search' && <SearchScreen />}
+          
+          {screen === 'now-playing' && <NowPlayingScreen />}
+          {screen === 'queue' && <QueueScreen />}
+          {screen === 'detail' && <DetailScreen />}
+          
+          <MiniPlayer />
+          <BottomNav />
+        </>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<AppProvider><Main /></AppProvider>);
+  </script>
+</body>
+</html>
