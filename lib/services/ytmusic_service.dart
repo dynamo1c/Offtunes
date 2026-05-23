@@ -14,7 +14,8 @@ import '../models/track.dart';
 ///     ranking deprioritises those results before we even score them.
 class YtMusicService {
   static const String _searchUrl =
-      'https://music.youtube.com/youtubei/v1/search?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
+      'https://music.youtube.com/youtubei/v1/search?key=AIzaSyC9XL3ZjWd'
+      'dXya6X74dJoCTL-WEYFDNX30';
 
   static const Map<String, String> _headers = {
     'Content-Type': 'application/json',

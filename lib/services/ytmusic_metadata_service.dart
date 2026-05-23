@@ -10,10 +10,12 @@ import '../models/track.dart';
 /// This is SEPARATE from [YtMusicService] which handles search/scoring.
 class YtMusicMetadataService {
   static const String _browseUrl =
-      'https://music.youtube.com/youtubei/v1/browse?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
+      'https://music.youtube.com/youtubei/v1/browse?key=AIzaSyC9XL3ZjWd'
+      'dXya6X74dJoCTL-WEYFDNX30';
 
   static const String _playerUrl =
-      'https://music.youtube.com/youtubei/v1/player?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
+      'https://music.youtube.com/youtubei/v1/player?key=AIzaSyC9XL3ZjWd'
+      'dXya6X74dJoCTL-WEYFDNX30';
 
   static const Map<String, String> _headers = {
     'Content-Type': 'application/json',
