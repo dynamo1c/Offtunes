@@ -1,16 +1,28 @@
-# 📻 Oddtunes
+# 📻 Offtunes
 
 [![Flutter](https://img.shields.io/badge/Flutter-%E2%89%A5%203.11.5-02569B?logo=flutter&style=flat-square)](https://flutter.dev)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Windows-4caf50?style=flat-square)](#)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](#)
 
-Oddtunes is a **cross-platform music acquisition and playback application** built with Flutter, featuring a retro-hardware-inspired UI. Import playlists from Spotify or YouTube Music, resolve each track to a YouTube audio stream, download the audio locally, automatically tag it with metadata/cover art, and play it back — all offline-first.
+Offtunes is a **cross-platform music acquisition and playback application** built with Flutter, featuring a retro-hardware-inspired UI. Import playlists from Spotify or YouTube Music, resolve each track to a YouTube audio stream, download the audio locally, automatically tag it with metadata/cover art, and play it back — all offline-first.
+
+---
+
+## 📱 App Screenshots
+
+| Library (Songs) | Library (Playlists) | Search Screen |
+| :---: | :---: | :---: |
+| <img src="assets/showcase/songs_list.png" width="240" alt="Songs List"/> | <img src="assets/showcase/playlists_list.png" width="240" alt="Playlists List"/> | <img src="assets/showcase/search_screen.png" width="240" alt="Search Screen"/> |
+
+| Import Playlist | Settings & Configuration |
+| :---: | :---: |
+| <img src="assets/showcase/import_screen.png" width="240" alt="Import Screen"/> | <img src="assets/showcase/settings_screen.png" width="240" alt="Settings Screen"/> |
 
 ---
 
 ## 🎨 Retro Hardware Aesthetics
 
-The interface is inspired by vintage, high-end audio equipment from the late 70s and 80s:
+The interface is inspired by vintage, high-end audio equipment:
 *   **Warm Color Palette:** Rich browns (`#1A0E0A`), deep crimson/velvet (`#8B2252`), and warm cream (`#F5E6D3`).
 *   **LCD Display Widgets:** Using pixel-perfect monospace typography (`VT323` and `Space Mono`) to simulate retro dot-matrix hardware screens.
 *   **Tactile Elements:** High-fidelity embossed panels, physical-style pressable buttons, and custom hardware sliders.
